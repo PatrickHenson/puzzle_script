@@ -31,7 +31,9 @@ python3 puzzle_script.py -m message2.txt -s 12345
 ```
 
 ## Output
-The output is stored in multiple formats to make it easy to utilize.
+The output folder contains the following content to make it easy to choose how to use the message.
+
+NOTE: Content in the output folder is overwritten each time the program is run.
 **log.txt**
 * RANDOM SEED: the value used to generate the substitution cipher.
 * MESSAGE: the original input message.
