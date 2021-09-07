@@ -101,7 +101,7 @@ def generate_alphabet_key():
     render.text((10,10), message, 'black', default_font)
     render.text((10,20), message, 'black', custom_font)
 
-    canvas.save('alphabet.jpg')
+    canvas.save('output/alphabet.jpg')
     #canvas.show() # optionally show the image with or without saving
 
 
@@ -155,14 +155,18 @@ def main():
     # Encode the message
     encoded_message = encode_substitution_cipher(message, cipher_key)
 
+    # Check if output folder exists.
+    if not os.path.exists('output/'):
+        os.mkdir('output/')
+
     # Generate image files containing the message, encoded message, and alphabet key.
-    generate_image(message, 'original_message.jpg')
-    generate_image(encoded_message, 'encoded_message.jpg')
+    generate_image(message, 'output/original_message.jpg')
+    generate_image(encoded_message, 'output/encoded_message.jpg')
     generate_alphabet_key()
 
     # Output log file with information about the run.
     log = '## RANDOM SEED ##\n{}\n\n## MESSAGE ##\n{}\n\n## ENCODED MESSAGE ##\n{}\n\n## CIPHER KEY##\n{}\n{}\n\n'
-    text_output = open('log.txt', 'w')
+    text_output = open('output/log.txt', 'w')
     text_output.write(log.format(seed, message, encoded_message, output_key[0], output_key[1]))
     text_output.close()
 
