@@ -5,6 +5,10 @@ import string
 import sys
 from PIL import Image, ImageDraw, ImageFont
 
+# This is the custom font, provided in the repo, used to render output images.
+# Replaces this variable if you want to use a load a different custom font.
+font_file = os.path.abspath(os.getcwd()) + '/fonts/tuigan_font/Tuigan-KppX.ttf'
+
 # Generate the cipher key using a set seed value.
 # The generated key is stored as a dictionary with [key,value] pairs as [letter,substitution]
 def generate_key(seed):
@@ -37,13 +41,13 @@ def reverse_key(cipher_key):
     return reversed_key
 
 # Encode the message using the substitution cipher key.
-# The encoded message will only contain lowercase letters.
+# The encoded message will only contain lowercase letters, spaces, and newlines.
 def encode_substitution_cipher(message, cipher_key):
     encoded_message = ""
     for c in message.lower():
         if c in cipher_key.keys():
             encoded_message += cipher_key[c]
-        else:
+        elif c == ' ' or c == '\n':
             encoded_message += c
     return encoded_message
     
@@ -56,22 +60,48 @@ def decode_substitution_cipher(message, cipher_key):
     for c in message.lower():
         if c in reversed_key.keys():
             decoded_message += reversed_key[c]
-        else:
+        elif c == ' ' or c == '\n':
             decoded_message += c
     return decoded_message
 
 # Generate image output 
-def generate_image(message):
-    # Create base image.
-    image_size = (600,800)
-    canvas = Image.new('RGB', image_size, 'white')
-    # Load custom font and render message.
-    font_file = os.path.abspath(os.getcwd()) + '/fonts/tuigan_font/Tuigan-KppX.ttf'
-    font = ImageFont.truetype(font_file, size=14, encoding='unic')
-    render = ImageDraw.Draw(canvas)
-    render.text((10,10), message, 'black', font)
+def generate_image(message, file_out):
+    # Load custom font.    
+    custom_font = ImageFont.truetype(font_file, size=14, encoding='unic')
+    
+    # Determine canvas size from font properties and message content.
+    image_padding = 10
+    image_width, image_height = custom_font.getsize_multiline(message)
+    image_width += image_padding * 2
+    image_height += image_padding
 
-    # canvas.save('output_image.jpg')
+    canvas = Image.new('RGB', (image_width, image_height), 'white')
+    render = ImageDraw.Draw(canvas)
+
+    x = 10 # pixel indent from left
+    y = 10 # pixel indent from top
+    for line in message.splitlines():
+        render.text((x, y), line.rstrip(), 'black', custom_font)
+        y += custom_font.size
+
+    canvas.save(file_out)
+    canvas.show()
+
+# Output a 'key file' to convert between ascii and custom font
+def generate_alphabet_key():
+    message = ''
+    for c in string.ascii_lowercase:
+        message += c + ' '
+
+    default_font = ImageFont.load_default()
+    custom_font = ImageFont.truetype(font_file, size=12, encoding='unic')
+    
+    canvas = Image.new('RGB', (325, 40), 'white')
+    render = ImageDraw.Draw(canvas)
+    render.text((10,10), message, 'black', default_font)
+    render.text((10,20), message, 'black', custom_font)
+
+    canvas.save('alphabet.jpg')
     canvas.show()
 
 
@@ -115,16 +145,25 @@ def main():
         seed = random.randint(0, sys.maxsize)
     cipher_key = generate_key(seed)
 
+    # Create a human readable key to translate the encoded message.
+    reversed_key = reverse_key(cipher_key)
+    output_key = {0:'', 1:''}
+    for c in sorted(reversed_key.keys()):
+        output_key[0] += c + ' '
+        output_key[1] += reversed_key[c] + ' '
+
     # Encode the message
     encoded_message = encode_substitution_cipher(message, cipher_key)
 
     # Generate image containing the message text.
-    generate_image(encoded_message)
+    generate_image(message, 'original_message.jpg')
+    generate_image(encoded_message, 'encoded_message.jpg')
+    generate_alphabet_key()
 
     # Output a file with process information.
-    log = '## RANDOM SEED ##\n{}\n\n## MESSAGE ##\n{}\n\n## ENCODED MESSAGE ##\n{}\n\n'
-    text_output = open('output.txt', 'w')
-    text_output.write(log.format(seed, message, encoded_message))
+    log = '## RANDOM SEED ##\n{}\n\n## MESSAGE ##\n{}\n\n## ENCODED MESSAGE ##\n{}\n\n## CIPHER KEY##\n{}\n{}\n\n'
+    text_output = open('log.txt', 'w')
+    text_output.write(log.format(seed, message, encoded_message, output_key[0], output_key[1]))
     text_output.close()
 
 
