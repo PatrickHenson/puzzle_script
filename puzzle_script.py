@@ -85,7 +85,7 @@ def generate_image(message, file_out):
         y += custom_font.size
 
     canvas.save(file_out)
-    canvas.show()
+    #canvas.show() # optionally show the image with or without saving
 
 # Output a 'key file' to convert between ascii and custom font
 def generate_alphabet_key():
@@ -102,7 +102,7 @@ def generate_alphabet_key():
     render.text((10,20), message, 'black', custom_font)
 
     canvas.save('alphabet.jpg')
-    canvas.show()
+    #canvas.show() # optionally show the image with or without saving
 
 
 # Processes command line input and execute the program.
@@ -155,12 +155,12 @@ def main():
     # Encode the message
     encoded_message = encode_substitution_cipher(message, cipher_key)
 
-    # Generate image containing the message text.
+    # Generate image files containing the message, encoded message, and alphabet key.
     generate_image(message, 'original_message.jpg')
     generate_image(encoded_message, 'encoded_message.jpg')
     generate_alphabet_key()
 
-    # Output a file with process information.
+    # Output log file with information about the run.
     log = '## RANDOM SEED ##\n{}\n\n## MESSAGE ##\n{}\n\n## ENCODED MESSAGE ##\n{}\n\n## CIPHER KEY##\n{}\n{}\n\n'
     text_output = open('log.txt', 'w')
     text_output.write(log.format(seed, message, encoded_message, output_key[0], output_key[1]))

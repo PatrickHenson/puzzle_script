@@ -27,14 +27,14 @@ def test_reverse_key():
 
 def test_encode_substitution_cipher():
     input_message = 'Hello World!'
-    expected_message = 'ysrrj xjnrz!'
+    expected_message = 'ysrrj xjnrz'
     cipher_key = generate_key(255)
     encoded_message = encode_substitution_cipher(input_message, cipher_key)
     assert encoded_message == expected_message
 
 def test_decode_substitution_cipher():
-    input_message = 'ysrrj xjnrz!'
-    expected_message = 'hello world!'
+    input_message = 'ysrrj xjnrz'
+    expected_message = 'hello world'
     cipher_key = generate_key(255)
     decoded_message = decode_substitution_cipher(input_message, cipher_key)
     assert decoded_message == expected_message
